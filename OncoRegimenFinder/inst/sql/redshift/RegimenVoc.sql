@@ -1,19 +1,35 @@
-with CTE as (
-select c1.concept_name as reg_name, 
-		 listagg(lower(c2.concept_name), ',') within group (order by lower(c2.concept_name) asc) as combo_name, 
-		 c1.concept_id
-from @cdmDatabaseSchema.concept_relationship 
-join @cdmDatabaseSchema.concept c1 on c1.concept_id=concept_id_1 
-join @cdmDatabaseSchema.concept c2 on c2.concept_id=concept_id_2
-		where c1.vocabulary_id='HemOnc' and relationship_id='Has antineoplastic'
-group by c1.concept_name,c1.concept_id
-order by c1.concept_name
+WITH CTE AS (  
+    SELECT   
+        c1.concept_name AS reg_name,  
+        string_agg(lower(c2.concept_name), ',' ORDER BY lower(c2.concept_name) ASC) AS combo_name,  
+        c1.concept_id  
+    FROM   
+        @cdmDatabaseSchema.concept_relationship  
+    JOIN   
+        @cdmDatabaseSchema.concept c1   
+        ON c1.concept_id = concept_id_1  
+    JOIN   
+        @cdmDatabaseSchema.concept c2   
+        ON c2.concept_id = concept_id_2  
+    WHERE   
+        c1.vocabulary_id = 'HemOnc'   
+        AND relationship_id = 'Has antineoplastic'  
+    GROUP BY   
+        c1.concept_name, c1.concept_id  
+    ORDER BY   
+        c1.concept_name  
 ),
-CTE_second as (
-select c.*, (case when lower(reg_name) = regexp_replace(combo_name,',',' and ') then 0
-			 else row_number() over (partition by combo_name order by len(c.reg_name)) end ) as rank
-from CTE c
-order by rank desc
+WITH CTE_second AS (  
+    SELECT   
+        c.*,   
+        CASE   
+            WHEN lower(c.reg_name) = regexp_replace(c.combo_name, ',', ' and ', 'g') THEN 0  
+            ELSE row_number() OVER (PARTITION BY c.combo_name ORDER BY length(c.reg_name))   
+        END AS rank  
+    FROM   
+        CTE c  
+    ORDER BY   
+        rank DESC  
 ),
 CTE_third as (
 select *,min(rank) over (partition by combo_name)

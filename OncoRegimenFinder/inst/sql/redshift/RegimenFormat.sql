@@ -1,11 +1,17 @@
 drop table if exists  @writeDatabaseSchema.@regimenIngredientTable;
 
-with cte as (
-select r.person_id, r.ingredient_start_date as regimen_start_date,
-       LISTAGG(DISTINCT lower(r.concept_name), ',') WITHIN GROUP (ORDER BY lower(r.concept_name)) as regimen
-from @writeDatabaseSchema.@regimenTable r
-group by r.person_id, r.ingredient_start_date
+WITH cte AS (  
+    SELECT  
+        r.person_id,  
+        r.ingredient_start_date AS regimen_start_date,  
+        STRING_AGG(DISTINCT lower(r.concept_name), ',' ORDER BY lower(r.concept_name)) AS regimen  
+    FROM  
+        your_schema_name.your_regimen_table r  
+    GROUP BY  
+        r.person_id,  
+        r.ingredient_start_date  
 )
+       
 select cte.person_id, orig.drug_era_id, i.concept_name as ingredient, i.ingredient_start_date, i.ingredient_end_date,
         cte.regimen, vt.concept_id as hemonc_concept_id, vt.reg_name, cte.regimen_start_date, max(i.ingredient_end_date) over (partition by cte.regimen_start_date, cte.person_id) as regimen_end_date
 into @writeDatabaseSchema.@regimenIngredientTable

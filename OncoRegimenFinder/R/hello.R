@@ -38,9 +38,9 @@ create_regimens <- function(connectionDetails, cdmDatabaseSchema, vocabDatabaseS
     CREATE TABLE @writeDatabaseSchema.@regimenTable_f (
        person_id bigint not null,
        drug_era_id bigint,
-       concept_name varchar(max),
+       concept_name varchar(1000),
        ingredient_start_date date not null
-    ) DISTKEY(person_id) SORTKEY(person_id, ingredient_start_date);", regimenTable_f = paste0(regimenTable,"_f"), writeDatabaseSchema = writeDatabaseSchema)
+    );", regimenTable_f = paste0(regimenTable,"_f"), writeDatabaseSchema = writeDatabaseSchema)
 
   DatabaseConnector::executeSql(connection, sql)
 

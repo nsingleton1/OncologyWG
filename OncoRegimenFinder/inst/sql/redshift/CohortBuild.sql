@@ -2,24 +2,24 @@ DROP TABLE IF EXISTS @writeDatabaseSchema.@cohortTable;
 DROP TABLE IF EXISTS @writeDatabaseSchema.@regimenTable;
 
 CREATE TABLE @writeDatabaseSchema.@regimenTable (
-       concept_name varchar(max),
+       concept_name varchar(1000),
        drug_era_id bigint,
        person_id bigint not null, 
        rn bigint,
        drug_concept_id bigint, 
        ingredient_start_date date not null,
        ingredient_end_date date
-) DISTKEY(person_id) SORTKEY(person_id, ingredient_start_date);
+);
 
 CREATE TABLE @writeDatabaseSchema.@cohortTable (
-       concept_name varchar(max),
+       concept_name varchar(1000),
        drug_era_id bigint,
        person_id bigint not null, 
        rn bigint,
        drug_concept_id bigint, 
        ingredient_start_date date not null,
        ingredient_end_date date
-) DISTKEY(person_id) SORTKEY(person_id, ingredient_start_date);
+);
 
 
 insert into @writeDatabaseSchema.@cohortTable
